@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # O /bootstrap-project substitui este passo pelo setup do runtime da stack, por exemplo:
+      #   - uses: actions/setup-node@v4
+      #     with: { node-version-file: .nvmrc, cache: npm }
+      #   - uses: actions/setup-python@v5
+      #     with: { python-version-file: .python-version, cache: pip }
+      - name: Setup do runtime
+        run: echo "Runtime não configurado — rode /bootstrap-project"
+
+      - name: Instalar dependências
+        run: make setup
+
+      # A CI chama apenas o Makefile, a mesma interface usada por agentes e hooks.
+      - name: Verificar (lint + test + build)
+        run: make check
